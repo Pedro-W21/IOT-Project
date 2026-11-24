@@ -14,6 +14,7 @@ Packet::Packet(
 ) {
     bad_packet = false;
     dynamic_byte = 0;
+    _hop_limit = 0;
     uint8_t header_bytes = 5;
     if (direct_path) {
         if (path_length < 32) {
@@ -75,6 +76,7 @@ Packet::Packet(
 Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
     // Check if larger than minimum header size, if not it's a bad packet
     bad_packet = false;
+    _hop_limit = 0;
     if (packet_size >= 5) {
         dynamic_byte = phy_packet[0];
         _source_adress = phy_packet[1];
@@ -85,10 +87,10 @@ Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
             _destination_adress = phy_packet[5];
             if (packet_size > 6) {
                 _direct_path = true;
-                _path_length = (dynamic_byte << 2) >> 2;
+                _path_length = (dynamic_byte & 0b00111111);
             }
             else {
-                _hop_limit = (dynamic_byte << 1) >> 1;
+                _hop_limit = (dynamic_byte & 0b01111111);
             }
         }
         else {
