@@ -1,0 +1,18 @@
+---
+title: "250oLoRa packet"
+config:
+  packet:
+    showBits: true
+    bitsPerRow: 16
+---
+packet
+0: "direct"
+1: "dest"
+2-7: "hop limit / path length  up to 32"
+8-15: "source address"
+16: "ACK"
+17-31: "packet number"
+32-39: "payload size"
+40-47: "(destination address)"
+48-63: "(path addresses : 8 bits x path lenght)"
+64-95: "payload (up to 255 - header bytes)"
