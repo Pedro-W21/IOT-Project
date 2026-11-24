@@ -80,7 +80,7 @@ Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
     if (packet_size >= 5) {
         dynamic_byte = phy_packet[0];
         _source_adress = phy_packet[1];
-        _packet_number = ((uint16_t) phy_packet[2]) << 8 + ((uint16_t) phy_packet[3]);
+        _packet_number = (((uint16_t) phy_packet[2]) << 8) + ((uint16_t) phy_packet[3]);
         _payload_size = phy_packet[4];
         if (packet_size >= 6) {
             _has_destination = true;
