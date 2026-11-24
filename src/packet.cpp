@@ -24,11 +24,13 @@ Packet::Packet(
             _path_length = path_length;
             dynamic_byte |= path_length;
             // destination is implied when you have a path
-            header_size += path_length + 1;
+            header_size += 1;
             _destination_adress = destination;
+            _phy_packet[5] = destination;
             for (int i = 0; i<path_length; i++) {
                 _phy_packet[i + header_size] = path[i];
             }
+            header_size += path_length;
         }
         else {
             bad_packet = true;
