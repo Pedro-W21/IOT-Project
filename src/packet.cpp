@@ -103,3 +103,17 @@ Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
         bad_packet = true;
     }
 }
+
+bool Packet::equal_to(Packet other) {
+    return this->bad_packet == other.bad_packet
+        && this->dynamic_byte == other.dynamic_byte
+        && this->_destination_adress == other._destination_adress
+        && this->_direct_path == other._direct_path
+        && this->_has_destination == other._has_destination
+        && this->_hop_limit == other._hop_limit
+        && this->_packet_number == other._packet_number
+        && this->_path_length == other._path_length
+        && this->_payload_size == other._payload_size
+        && this->_source_adress == other._source_adress;
+
+}

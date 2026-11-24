@@ -20,7 +20,8 @@ class Packet {
             uint8_t packet_size,
             uint8_t *phy_packet
         );
-    private:
+        bool equal_to(Packet other);
+        
         uint8_t _phy_packet[255];
 
         uint8_t dynamic_byte;
