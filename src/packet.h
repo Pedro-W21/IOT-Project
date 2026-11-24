@@ -21,7 +21,8 @@ class Packet {
             uint8_t *phy_packet
         );
         bool equal_to(Packet other);
-        
+        uint8_t get_in_payload(uint8_t idx);
+
         uint8_t _phy_packet[255];
 
         uint8_t dynamic_byte;
@@ -29,6 +30,7 @@ class Packet {
         AddressSize _source_adress;
         uint16_t _packet_number;
 
+        uint8_t header_size;
         uint8_t total_size;
 
         /// both derived from dynamic byte when reading a packet, dynamic byte is derived from those when creating a packet

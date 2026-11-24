@@ -15,7 +15,7 @@ Packet::Packet(
     bad_packet = false;
     dynamic_byte = 0;
     _hop_limit = 0;
-    uint8_t header_bytes = 5;
+    header_size = 5;
     if (direct_path) {
         if (path_length < 32) {
             _direct_path = true;
@@ -24,10 +24,10 @@ Packet::Packet(
             _path_length = path_length;
             dynamic_byte |= path_length;
             // destination is implied when you have a path
-            header_bytes += path_length + 1;
+            header_size += path_length + 1;
             _destination_adress = destination;
             for (int i = 0; i<path_length; i++) {
-                _phy_packet[i + header_bytes] = path[i];
+                _phy_packet[i + header_size] = path[i];
             }
         }
         else {
@@ -44,7 +44,7 @@ Packet::Packet(
                 dynamic_byte |= hop_limit;
                 _path_length = 0;
                 _hop_limit = hop_limit;
-                header_bytes += 1;
+                header_size += 1;
             }
             else {
                 bad_packet = true;
@@ -61,22 +61,25 @@ Packet::Packet(
     _packet_number = packet_number;
     _phy_packet[2] = (uint8_t) (packet_number >> 8);
     _phy_packet[3] = (uint8_t) packet_number;
-    if (payload_size <= 255 - header_bytes) {
+    if (payload_size <= 255 - header_size) {
         _payload_size = payload_size;
         _phy_packet[4] = payload_size;
     }
     else {
         bad_packet = true;
     }
-    for (int i = 0; i<header_bytes; i++) {
-        _phy_packet[i + header_bytes] = payload[i];
+    for (int i = 0; i<header_size; i++) {
+        _phy_packet[i + header_size] = payload[i];
     }
+    total_size = header_size + _payload_size;
 }
 
 Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
     // Check if larger than minimum header size, if not it's a bad packet
     bad_packet = false;
     _hop_limit = 0;
+    total_size = packet_size;
+    header_size = 5;
     if (packet_size >= 5) {
         dynamic_byte = phy_packet[0];
         _source_adress = phy_packet[1];
@@ -85,9 +88,11 @@ Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
         if (packet_size >= 6) {
             _has_destination = true;
             _destination_adress = phy_packet[5];
+            header_size = 6;
             if (packet_size > 6) {
                 _direct_path = true;
                 _path_length = (dynamic_byte & 0b00111111);
+                header_size = 6 + _path_length;
             }
             else {
                 _hop_limit = (dynamic_byte & 0b01111111);
@@ -107,6 +112,12 @@ Packet::Packet(uint8_t packet_size, uint8_t *phy_packet) {
 }
 
 bool Packet::equal_to(Packet other) {
+    bool identical_phy = true;
+    for (int i = 0; i<this->total_size; i++) {
+        if (this->_phy_packet[i] != other._phy_packet[i]) {
+            identical_phy = false;
+        }
+    }
     return this->bad_packet == other.bad_packet
         && this->dynamic_byte == other.dynamic_byte
         && this->_destination_adress == other._destination_adress
@@ -116,6 +127,17 @@ bool Packet::equal_to(Packet other) {
         && this->_packet_number == other._packet_number
         && this->_path_length == other._path_length
         && this->_payload_size == other._payload_size
-        && this->_source_adress == other._source_adress;
+        && this->_source_adress == other._source_adress
+        && this->total_size == other.total_size
+        && identical_phy;
 
 }
+
+uint8_t Packet::get_in_payload(uint8_t idx) {
+    if (idx < _payload_size) {
+        return _phy_packet[header_size + idx];
+    }
+    else {
+        return 0;
+    }
+} 
