@@ -23,6 +23,5 @@ class Packet {
 
         /// Not guaranteed to be defined from this point
         AddressSize destination_addr;
-        AddressSize *path_addrs;
 
 };
