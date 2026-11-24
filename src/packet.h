@@ -6,6 +6,8 @@ class Packet {
     public:
         Packet();
     private:
+        uint8_t phy_packet[255];
+
         uint8_t dynamic_byte;
         uint8_t payload_size;
         AddressSize source_address;
